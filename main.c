@@ -1,6 +1,6 @@
 /*******************************************************************************************
 *
-*   raylib study [main.c] - Pong _ ver 0.1
+*   raylib study [main.c] - Pong _ ver 0.2
 *
 *   Game originally created with raylib 4.2, last time updated with raylib 4.2
 *
@@ -98,7 +98,7 @@ int main() {
 
     board.font_size = 18;
     board.text_hx = (_SCREEN_W/2.0f)+12;
-    board.text_cx = (_SCREEN_W/2.0f)-MeasureText("Â 0000",board.font_size)-49;
+    board.text_cx = (_SCREEN_W/2.0f)-MeasureText("Â 0000",board.font_size)-50;
     board.text_y = 28;
     board.text_col = GetColor(0xa0ff9dff);
 
@@ -190,49 +190,44 @@ void update_ball() {
     ball.position.y += ball.velocity.y * GetFrameTime() * ball.speed;
 
     ball.center = (Vector2){ball.position.x + 12, ball.position.y + 9};
-    // screen left
+    // top
     if (ball.position.y <=board.font_size) {
         ball.position.y = board.font_size;
         ball.velocity.y *= -1;
     }
-    // screen right
+    // bottom
     if (ball.position.y >= _SCREEN_H-board.font_size-ball.size) {
         ball.position.y = GetScreenHeight()-board.font_size-ball.size;
         ball.velocity.y *= -1;
     }
     // human
     if (CheckCollisionCircleRec(ball.center,ball.radius,human.rect)) {
-        if (ball.velocity.x > 0) {
-            float a = (human.position.y+(human.paddle_h/2.0f)) - (ball.center.y);
-            float b = (a/(human.paddle_h/2.0f));
-            float c = (b * (7*PI/36)); // 35deg
-            ball.speed_up *= 1.06f;
-            ball.speed_up = Clamp(ball.speed_up,8.0f,22.0f); // max speed
-            ball.velocity.x = -cos(c) * ball.speed_up;
-            ball.velocity.y = -sin(c) * ball.speed_up;
-
-        }
+        float a = (human.position.y+(human.paddle_h/2.0f)) - (ball.center.y);
+        float b = (a/(human.paddle_h/2.0f));
+        float c = (b * (7*PI/36)); // 35deg
+        ball.speed_up *= 1.06f;
+        ball.speed_up = Clamp(ball.speed_up,8,23); // max speed
+        ball.velocity.x = floor(-cos(c) * ball.speed_up);
+        ball.velocity.y = floor(-sin(c) * ball.speed_up);
     }
     // computer
     if (CheckCollisionCircleRec(ball.center,ball.radius,computer.rect)) {
-        if (ball.velocity.x < 0) {
-            float a = (computer.position.y+(computer.paddle_h/2.0f)) - (ball.center.y);
-            float b = (a/(computer.paddle_h/2.0f));
-            float c = (b * (7*PI/36)); // 35deg
-            ball.speed_up *= 1.06f;
-            ball.speed_up = Clamp(ball.speed_up,8.0f,22.0f); // max speed
-            ball.velocity.x = cos(c) * ball.speed_up;
-            ball.velocity.y = -sin(c) * ball.speed_up;
-        }
+        float a = (computer.position.y+(computer.paddle_h/2.0f)) - (ball.center.y);
+        float b = (a/(computer.paddle_h/2.0f));
+        float c = (b * (7*PI/36)); // 35deg
+        ball.speed_up *= 1.06f;
+        ball.speed_up = Clamp(ball.speed_up,8,23); // max speed
+        ball.velocity.x = floor(cos(c) * ball.speed_up);
+        ball.velocity.y = floor(-sin(c) * ball.speed_up);
     }
 }
 
 void update_human() {
     human.rect = update_human_paddle();
-    if (IsKeyDown(KEY_DOWN)) {
+    if (IsKeyDown(KEY_DOWN) && !human.enable_ai) {
         human.position.y += human.speed * GetFrameTime();
     }
-    if (IsKeyDown(KEY_UP)) {
+    if (IsKeyDown(KEY_UP) && !human.enable_ai) {
         human.position.y -= human.speed * GetFrameTime();
     }
 }
