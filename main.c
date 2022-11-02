@@ -327,7 +327,7 @@ void UpdateDrawFrame(Screen *screen, GameScreen *current_screen, Board *board, P
         case TITLE:
             {
                 board->timer.frame_counter++;
-                if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) {
+                if (!board->blink && (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER))) {
                     PlaySound(board->sfx.start);
                     board->blink = true;
                 }
