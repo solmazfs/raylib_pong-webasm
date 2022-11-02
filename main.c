@@ -26,6 +26,9 @@
 #include "raymath.h"
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
+    #define GLSL_VERSION 100
+#else
+    #define GLSL_VERSION 330
 #endif
 
 /* -- TODO:
@@ -49,7 +52,6 @@
 
 #define _WINDOW_W 640
 #define _WINDOW_H 360
-#define GLSL_VERSION 100
 #define MAX_SCORE 99999
 
 typedef struct Screen {
@@ -112,7 +114,7 @@ typedef struct Context {
 
 void LoadResources(Screen *screen, Board *board) {
     // shader
-    screen->shader = LoadShader(0, TextFormat("resources/shaders/crt.frag",GLSL_VERSION));
+    screen->shader = LoadShader(0, TextFormat("resources/shaders/crt%i.frag",GLSL_VERSION));
     // texture
     screen->logo_raylib = LoadTexture("resources/raylib_logo.png");
     // font
@@ -360,13 +362,13 @@ void UpdateDrawFrame(Screen *screen, GameScreen *current_screen, Board *board, P
                 // DEBUG --> control camera
                 //screen->camera.target = ball->position;
                 //screen->camera.offset = (Vector2){screen->canvas_width/2.0f,screen->canvas_height/2.0f};
-                if (IsKeyPressed(KEY_Q)) {
-                    screen->camera.zoom -= 0.6f;
-                }
-                if (IsKeyPressed(KEY_E)) {
-                    screen->camera.zoom += 0.6f;
-                }
-                // !code order necessary -- sth still causes fps drop
+                //if (IsKeyPressed(KEY_Q)) {
+                //    screen->camera.zoom -= 0.6f;
+                //}
+                //if (IsKeyPressed(KEY_E)) {
+                //    screen->camera.zoom += 0.6f;
+                //}
+                // !code order necessary
                 ball->position = move_ball(screen, board, ball,human,computer);
                 if (board->ai_status) board->timer.frame_counter++;
                 if ((board->timer.frame_counter/30)%2) {
@@ -496,17 +498,17 @@ Vector2 move_ball(Screen *screen, Board *board, Ball *ball, Paddle *human, Paddl
     ball->position.y += (ball->velocity.y * GetFrameTime() * (ball->speed * ball->smash_speed)) * ball->corner_speed;
     ball->speed = Clamp(ball->speed,ball->min_speed,ball->max_speed);
     // DEBUG
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        ball->position = GetMousePosition();
-        if (GetMousePosition().y > human->position.y + human->paddle_height/2.0f) {
-            ball->velocity.x = 0;
-            ball->velocity.y = -1;
-        } else {
-            ball->velocity.x = 0;
-            ball->velocity.y = 1;
+    //if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    //    ball->position = GetMousePosition();
+    //    if (GetMousePosition().y > human->position.y + human->paddle_height/2.0f) {
+    //        ball->velocity.x = 0;
+    //        ball->velocity.y = -1;
+    //    } else {
+    //        ball->velocity.x = 0;
+    //        ball->velocity.y = 1;
 
-        }
-    }
+    //    }
+    //}
 
     // human
     if (CheckCollisionCircleRec(ball->position,ball->radius,human->rec)) {
